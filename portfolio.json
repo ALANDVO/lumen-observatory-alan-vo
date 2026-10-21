@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "lumen-observatory-alan-vo",
+  "owner": "ALANDVO",
+  "email": "alanvo@gmail.com",
+  "domain": "AI/ML developer tools",
+  "summary": "Work in progress: lumen-observatory-alan-vo",
+  "workflows": [
+    "Actor lifecycle management: create, pause, commit, resume, revert, dump, delete with validated state transitions",
+    "Telemetry attribution relay: OTLP receiver stamps trusted ate.dev/* identity, enforces delta temporality, bounds cardinality",
+    "Population gauge metrics: ate_actors UpDownCounter by template and status, updated on transitions without full scans"
+  ],
+  "auth": "oidc-keycloak-saml-broker",
+  "llm_providers": [
+    "openai-compatible",
+    "anthropic",
+    "gemini",
+    "ollama"
+  ],
+  "status": "work-in-progress"
+}

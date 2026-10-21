@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "current_feature": "project-skeleton",
+  "features": [
+    {
+      "id": "project-skeleton",
+      "title": "Project skeleton with FastAPI backend and React frontend",
+      "status": "done",
+      "acceptance": [
+        "FastAPI app runs with health endpoint",
+        "React + TypeScript + Vite frontend builds",
+        "Dockerfiles for backend and frontend",
+        "docker-compose with Keycloak and persistent volumes",
+        "SQLite persistent storage with SQLAlchemy",
+        "Basic project structure meeting contract requirements"
+      ],
+      "implementation": [
+        "backend/app/main.py",
+        "backend/app/core/config.py",
+        "backend/app/core/database.py",
+        "backend/app/models/__init__.py",
+        "backend/app/api/__init__.py",
+        "backend/app/services/__init__.py",
+        "backend/requirements.txt",
+        "backend/Dockerfile",
+        "frontend/package.json",
+        "frontend/package-lock.json",
+        "frontend/Dockerfile",
+        "frontend/vite.config.ts",
+        "frontend/tsconfig.json",
+        "frontend/src/main.tsx",
+        "frontend/src/App.tsx",
+        "compose.yaml",
+        ".env.example",
+        ".gitignore",
+        "README.md",
+        "LICENSE",
+        "CHANGELOG.md",
+        "pyproject.toml",
+        "portfolio.json"
+      ],
+      "tests": [
+        "backend/tests/test_health.py",
+        "frontend/tests/App.test.tsx"
+      ]
+    },
+    {
+      "id": "actor-state-machine",
+      "title": "Actor state machine domain engine",
+      "status": "planned",
+      "acceptance": [
+        "Actor model with RUNNING/PAUSED/SUSPENDED/CRASHED states",
+        "State transitions with validation",
+        "Snapshot configuration (full/data)",
+        "Actor lifecycle API endpoints",
+        "Persistence with SQLite"
+      ],
+      "implementation": [
+        "backend/app/models/actor.py",
+        "backend/app/services/actor_service.py",
+        "backend/app/api/actors.py",
+        "backend/tests/test_actor_state_machine.py"
+      ],
+      "tests": [
+        "backend/tests/test_actor_state_machine.py",
+        "backend/tests/test_actor_api.py"
+      ]
+    },
+    {
+      "id": "telemetry-relay",
+      "title": "OTel telemetry relay for actor attribution",
+      "status": "planned",
+      "acceptance": [
+        "OTLP receiver endpoint at 169.254.17.1:4317",
+        "Actor identity attribution (actor_uid, actor_name, etc.)",
+        "Cardinality-bounded metric forwarding",
+        "Delta temporality enforcement"
+      ],
+      "implementation": [
+        "backend/app/services/telemetry_relay.py",
+        "backend/app/api/telemetry.py",
+        "backend/tests/test_telemetry_relay.py"
+      ],
+      "tests": [
+        "backend/tests/test_telemetry_relay.py"
+      ]
+    },
+    {
+      "id": "actor-gauge-metrics",
+      "title": "Actor gauge metrics (ate.actors)",
+      "status": "planned",
+      "acceptance": [
+        "UpDownCounter for actor counts by status and template",
+        "Incremented on state transitions",
+        "No per-collection full scan"
+      ],
+      "implementation": [
+        "backend/app/services/actor_metrics.py",
+        "backend/tests/test_actor_metrics.py"
+      ],
+      "tests": [
+        "backend/tests/test_actor_metrics.py"
+      ]
+    },
+    {
+      "id": "oidc-auth",
+      "title": "OIDC authentication with Keycloak",
+      "status": "planned",
+      "acceptance": [
+        "Authorization code flow with PKCE",
+        "HttpOnly SameSite cookies with CSRF protection",
+        "Role-based access control (viewer/operator/admin)",
+        "Login/logout endpoints"
+      ],
+      "implementation": [
+        "backend/app/core/auth.py",
+        "backend/app/api/auth.py",
+        "backend/tests/test_auth.py",
+        "frontend/src/components/auth/"
+      ],
+      "tests": [
+        "backend/tests/test_auth.py",
+        "frontend/tests/auth.test.tsx"
+      ]
+    },
+    {
+      "id": "frontend-dashboard",
+      "title": "React dashboard with actor management",
+      "status": "planned",
+      "acceptance": [
+        "Actor list with pagination/filtering",
+        "Actor detail view with state transitions",
+        "Create/import/search/export workflows",
+        "Loading/error/empty states",
+        "Typed API client from backend routes"
+      ],
+      "implementation": [
+        "frontend/src/components/actors/",
+        "frontend/src/api/client.ts",
+        "frontend/src/pages/",
+        "frontend/tests/dashboard.test.tsx"
+      ],
+      "tests": [
+        "frontend/tests/dashboard.test.tsx"
+      ]
+    },
+    {
+      "id": "ci-pipeline",
+      "title": "CI pipeline with backend/frontend tests and Docker builds",
+      "status": "planned",
+      "acceptance": [
+        "GitHub Actions workflow with pytest, npm ci/build/test",
+        "Dockerfile builds for backend and frontend",
+        "At least 12 backend tests, 3 frontend tests"
+      ],
+      "implementation": [
+        ".github/workflows/ci.yml"
+      ],
+      "tests": [
+        "backend/tests/",
+        "frontend/tests/"
+      ]
+    }
+  ]
+}
