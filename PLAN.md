@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-project-skeleton
+actor-gauge-metrics
 
 ## Roadmap
 
@@ -26,7 +26,7 @@ Tests: `backend/tests/test_health.py`, `frontend/tests/App.test.tsx`
 
 ### actor-state-machine — Actor state machine domain engine
 
-Status: planned
+Status: done
 
 Acceptance:
 - Actor model with RUNNING/PAUSED/SUSPENDED/CRASHED states
@@ -55,14 +55,14 @@ Tests: `backend/tests/test_telemetry_relay.py`
 
 ### actor-gauge-metrics — Actor gauge metrics (ate.actors)
 
-Status: planned
+Status: done
 
 Acceptance:
 - UpDownCounter for actor counts by status and template
 - Incremented on state transitions
 - No per-collection full scan
 
-Implementation: `backend/app/services/actor_metrics.py`, `backend/tests/test_actor_metrics.py`
+Implementation: `backend/app/services/actor_metrics.py`, `backend/tests/test_actor_metrics.py`, `backend/app/services/actor_service.py`
 
 Tests: `backend/tests/test_actor_metrics.py`
 

@@ -50,3 +50,4 @@ Thumbs.db
 # Build artifacts
 *.egg-info/
 dist/
+venv/

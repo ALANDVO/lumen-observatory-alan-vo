@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from backend.app.models.actor import ActorStatus, ActorState, SnapshotScope, ActorSnapshot, ActorTransitionLog
+from backend.app.services.actor_metrics import actor_metrics
 
 
 class ActorService:
@@ -41,6 +42,7 @@ class ActorService:
         self.db.commit()
         self.db.refresh(actor)
         self._log_transition(actor_uid, None, ActorState.SUSPENDED, "system", f"created from {from_tag}" if from_tag else "created")
+        actor_metrics.increment_actor(actor_template_namespace, actor_template_name, ActorState.SUSPENDED)
         return actor
 
     def get_actor(self, actor_uid: str) -> Optional[ActorStatus]:
@@ -96,6 +98,9 @@ class ActorService:
         self.db.commit()
         self.db.refresh(actor)
         self._log_transition(actor_uid, from_state, to_state, triggered_by, reason)
+        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
+        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, to_state)
+        actor_metrics.record_transition(from_state, to_state, actor.actor_template_namespace, actor.actor_template_name)
         return actor
 
     def pause_actor(self, actor_uid: str, timer_seconds: Optional[int] = None, triggered_by: str = "api") -> ActorStatus:
@@ -228,6 +233,7 @@ class ActorService:
         self.db.query(ActorTransitionLog).filter(ActorTransitionLog.actor_uid == actor_uid).delete()
         self.db.query(ActorSnapshot).filter(ActorSnapshot.actor_uid == actor_uid).delete()
         self.db.delete(actor)
+        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, actor.state)
         self.db.commit()
         return True
 
