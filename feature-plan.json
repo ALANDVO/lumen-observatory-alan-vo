@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_feature": "project-skeleton",
+  "current_feature": "actor-gauge-metrics",
   "features": [
     {
       "id": "project-skeleton",
@@ -47,7 +47,7 @@
     {
       "id": "actor-state-machine",
       "title": "Actor state machine domain engine",
-      "status": "planned",
+      "status": "done",
       "acceptance": [
         "Actor model with RUNNING/PAUSED/SUSPENDED/CRASHED states",
         "State transitions with validation",
@@ -88,7 +88,7 @@
     {
       "id": "actor-gauge-metrics",
       "title": "Actor gauge metrics (ate.actors)",
-      "status": "planned",
+      "status": "done",
       "acceptance": [
         "UpDownCounter for actor counts by status and template",
         "Incremented on state transitions",
@@ -96,7 +96,8 @@
       ],
       "implementation": [
         "backend/app/services/actor_metrics.py",
-        "backend/tests/test_actor_metrics.py"
+        "backend/tests/test_actor_metrics.py",
+        "backend/app/services/actor_service.py"
       ],
       "tests": [
         "backend/tests/test_actor_metrics.py"
