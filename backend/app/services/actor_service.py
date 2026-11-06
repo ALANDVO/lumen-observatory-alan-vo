@@ -128,6 +128,7 @@ class ActorService:
             actor.snapshot_scope = scope
 
         if actor.state in [ActorState.RUNNING, ActorState.PAUSED]:
+            from_state = actor.state
             actor.state = ActorState.SUSPENDED
             actor.updated_at = datetime.utcnow()
             actor.last_snapshot_at = datetime.utcnow()
@@ -135,7 +136,10 @@ class ActorService:
                 actor.tags = tag
             self.db.commit()
             self.db.refresh(actor)
-            self._log_transition(actor_uid, actor.state, ActorState.SUSPENDED, triggered_by, f"commit tag={tag} scope={scope}")
+            self._log_transition(actor_uid, from_state, ActorState.SUSPENDED, triggered_by, f"commit tag={tag} scope={scope}")
+            actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
+            actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.SUSPENDED)
+            actor_metrics.record_transition(from_state, ActorState.SUSPENDED, actor.actor_template_namespace, actor.actor_template_name)
 
             # Create snapshot record
             snapshot = ActorSnapshot(
@@ -158,13 +162,17 @@ class ActorService:
         if actor.state not in [ActorState.PAUSED, ActorState.SUSPENDED]:
             raise ValueError(f"Cannot resume actor in state {actor.state}")
 
+        from_state = actor.state
         actor.state = ActorState.RUNNING
         actor.updated_at = datetime.utcnow()
         if node_name:
             actor.node_name = node_name
         self.db.commit()
         self.db.refresh(actor)
-        self._log_transition(actor_uid, actor.state, ActorState.RUNNING, triggered_by, f"resume node={node_name}")
+        self._log_transition(actor_uid, from_state, ActorState.RUNNING, triggered_by, f"resume node={node_name}")
+        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
+        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.RUNNING)
+        actor_metrics.record_transition(from_state, ActorState.RUNNING, actor.actor_template_namespace, actor.actor_template_name)
         return actor
 
     def crash_actor(self, actor_uid: str, reason: str = "unknown") -> ActorStatus:
@@ -172,11 +180,16 @@ class ActorService:
         if not actor:
             raise ValueError(f"Actor {actor_uid} not found")
 
+        from_state = actor.state
         actor.state = ActorState.CRASHED
         actor.updated_at = datetime.utcnow()
         self.db.commit()
         self.db.refresh(actor)
-        self._log_transition(actor_uid, actor.state, ActorState.CRASHED, "system", reason)
+        self._log_transition(actor_uid, from_state, ActorState.CRASHED, "system", reason)
+        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
+        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.CRASHED)
+        actor_metrics.record_transition(from_state, ActorState.CRASHED, actor.actor_template_namespace, actor.actor_template_name)
+        actor_metrics.record_crash(actor.actor_template_namespace, actor.actor_template_name)
         return actor
 
     def revert_actor(self, actor_uid: str, tag: str, triggered_by: str = "api") -> ActorStatus:
@@ -191,13 +204,17 @@ class ActorService:
         if not snapshot:
             raise ValueError(f"Snapshot with tag {tag} not found for actor {actor_uid}")
 
+        from_state = actor.state
         actor.state = ActorState.SUSPENDED
         actor.updated_at = datetime.utcnow()
         actor.last_snapshot_at = snapshot.created_at
         actor.tags = tag
         self.db.commit()
         self.db.refresh(actor)
-        self._log_transition(actor_uid, actor.state, ActorState.SUSPENDED, triggered_by, f"revert to tag={tag}")
+        self._log_transition(actor_uid, from_state, ActorState.SUSPENDED, triggered_by, f"revert to tag={tag}")
+        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
+        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.SUSPENDED)
+        actor_metrics.record_transition(from_state, ActorState.SUSPENDED, actor.actor_template_namespace, actor.actor_template_name)
         return actor
 
     def dump_actor(self, actor_uid: str, tag: str, triggered_by: str = "api") -> ActorStatus:
@@ -205,6 +222,7 @@ class ActorService:
         if not actor:
             raise ValueError(f"Actor {actor_uid} not found")
 
+        from_state = actor.state
         actor.state = ActorState.SUSPENDED
         actor.updated_at = datetime.utcnow()
         actor.last_snapshot_at = datetime.utcnow()
@@ -222,7 +240,10 @@ class ActorService:
         self.db.add(snapshot)
         self.db.commit()
 
-        self._log_transition(actor_uid, actor.state, ActorState.SUSPENDED, triggered_by, f"dump tag={tag}")
+        self._log_transition(actor_uid, from_state, ActorState.SUSPENDED, triggered_by, f"dump tag={tag}")
+        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
+        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.SUSPENDED)
+        actor_metrics.record_transition(from_state, ActorState.SUSPENDED, actor.actor_template_namespace, actor.actor_template_name)
         return actor
 
     def delete_actor(self, actor_uid: str) -> bool:
