@@ -59,3 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backend test structure with pytest
 - Frontend test structure with vitest
 - CI workflow configuration
+
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)

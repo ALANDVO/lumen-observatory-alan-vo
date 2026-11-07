@@ -108,3 +108,6 @@ Implementation: `.github/workflows/ci.yml`
 
 Tests: `backend/tests/`, `frontend/tests/`
 
+---
+
+Alan Vo · [alanvo.net](https://alanvo.net)
