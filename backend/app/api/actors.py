@@ -117,11 +117,6 @@ async def create_actor(request: ActorCreate, db: Session = Depends(get_db)):
             snapshot_scope=request.snapshot_scope,
             from_tag=request.from_tag,
         )
-        actor_metrics.increment_actor(
-            actor.actor_template_namespace,
-            actor.actor_template_name,
-            actor.state,
-        )
         return actor
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -156,13 +151,7 @@ async def get_actor(actor_uid: str, db: Session = Depends(get_db)):
 async def transition_actor(actor_uid: str, request: ActorTransitionRequest, db: Session = Depends(get_db)):
     service = ActorService(db)
     try:
-        from_state = service.get_actor(actor_uid).state
         actor = service.transition_actor(actor_uid, request.to_state, "api", request.reason)
-        actor_metrics.record_transition(from_state, request.to_state, actor.actor_template_namespace, actor.actor_template_name)
-        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
-        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, request.to_state)
-        if request.to_state == ActorState.CRASHED:
-            actor_metrics.record_crash(actor.actor_template_namespace, actor.actor_template_name)
         return actor
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -172,11 +161,7 @@ async def transition_actor(actor_uid: str, request: ActorTransitionRequest, db: 
 async def pause_actor(actor_uid: str, request: ActorPauseRequest, db: Session = Depends(get_db)):
     service = ActorService(db)
     try:
-        from_state = service.get_actor(actor_uid).state
         actor = service.pause_actor(actor_uid, request.timer_seconds, "api")
-        actor_metrics.record_transition(from_state, ActorState.PAUSED, actor.actor_template_namespace, actor.actor_template_name)
-        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
-        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.PAUSED)
         return actor
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -186,11 +171,7 @@ async def pause_actor(actor_uid: str, request: ActorPauseRequest, db: Session = 
 async def commit_actor(actor_uid: str, request: ActorCommitRequest, db: Session = Depends(get_db)):
     service = ActorService(db)
     try:
-        from_state = service.get_actor(actor_uid).state
         actor = service.commit_actor(actor_uid, request.tag, request.scope, "api")
-        actor_metrics.record_transition(from_state, ActorState.SUSPENDED, actor.actor_template_namespace, actor.actor_template_name)
-        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
-        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.SUSPENDED)
         return actor
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -200,11 +181,7 @@ async def commit_actor(actor_uid: str, request: ActorCommitRequest, db: Session 
 async def resume_actor(actor_uid: str, request: ActorResumeRequest, db: Session = Depends(get_db)):
     service = ActorService(db)
     try:
-        from_state = service.get_actor(actor_uid).state
         actor = service.resume_actor(actor_uid, request.node_name, "api")
-        actor_metrics.record_transition(from_state, ActorState.RUNNING, actor.actor_template_namespace, actor.actor_template_name)
-        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
-        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.RUNNING)
         return actor
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -214,11 +191,7 @@ async def resume_actor(actor_uid: str, request: ActorResumeRequest, db: Session 
 async def revert_actor(actor_uid: str, request: ActorRevertRequest, db: Session = Depends(get_db)):
     service = ActorService(db)
     try:
-        from_state = service.get_actor(actor_uid).state
         actor = service.revert_actor(actor_uid, request.tag, "api")
-        actor_metrics.record_transition(from_state, ActorState.SUSPENDED, actor.actor_template_namespace, actor.actor_template_name)
-        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
-        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.SUSPENDED)
         return actor
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -228,11 +201,7 @@ async def revert_actor(actor_uid: str, request: ActorRevertRequest, db: Session 
 async def dump_actor(actor_uid: str, request: ActorDumpRequest, db: Session = Depends(get_db)):
     service = ActorService(db)
     try:
-        from_state = service.get_actor(actor_uid).state
         actor = service.dump_actor(actor_uid, request.tag, "api")
-        actor_metrics.record_transition(from_state, ActorState.SUSPENDED, actor.actor_template_namespace, actor.actor_template_name)
-        actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, from_state)
-        actor_metrics.increment_actor(actor.actor_template_namespace, actor.actor_template_name, ActorState.SUSPENDED)
         return actor
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -244,7 +213,6 @@ async def delete_actor(actor_uid: str, db: Session = Depends(get_db)):
     actor = service.get_actor(actor_uid)
     if not actor:
         raise HTTPException(status_code=404, detail="Actor not found")
-    actor_metrics.decrement_actor(actor.actor_template_namespace, actor.actor_template_name, actor.state)
     service.delete_actor(actor_uid)
 
 
