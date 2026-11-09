@@ -61,8 +61,9 @@ Acceptance:
 - UpDownCounter for actor counts by status and template
 - Incremented on state transitions
 - No per-collection full scan
+- Fixed duplicate metrics increments in API endpoints
 
-Implementation: `backend/app/services/actor_metrics.py`, `backend/tests/test_actor_metrics.py`, `backend/app/services/actor_service.py`
+Implementation: `backend/app/services/actor_metrics.py`, `backend/tests/test_actor_metrics.py`, `backend/app/services/actor_service.py`, `backend/app/api/actors.py`
 
 Tests: `backend/tests/test_actor_metrics.py`
 
