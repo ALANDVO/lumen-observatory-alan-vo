@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.core.config import settings
 from backend.app.core.database import init_db
-from backend.app.api import health_router, actors_router, metrics_router
+from backend.app.api import health_router, actors_router, metrics_router, telemetry_router
 
 
 @asynccontextmanager
@@ -29,6 +29,7 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(actors_router)
 app.include_router(metrics_router)
+app.include_router(telemetry_router)
 
 
 @app.get("/")

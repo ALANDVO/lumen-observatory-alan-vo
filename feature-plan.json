@@ -69,7 +69,7 @@
     {
       "id": "telemetry-relay",
       "title": "OTel telemetry relay for actor attribution",
-      "status": "planned",
+      "status": "in_progress",
       "acceptance": [
         "OTLP receiver endpoint at 169.254.17.1:4317",
         "Actor identity attribution (actor_uid, actor_name, etc.)",
