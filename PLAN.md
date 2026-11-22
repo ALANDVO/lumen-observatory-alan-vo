@@ -41,7 +41,7 @@ Tests: `backend/tests/test_actor_state_machine.py`, `backend/tests/test_actor_ap
 
 ### telemetry-relay — OTel telemetry relay for actor attribution
 
-Status: in_progress
+Status: done
 
 Acceptance:
 - OTLP receiver endpoint at 169.254.17.1:4317
